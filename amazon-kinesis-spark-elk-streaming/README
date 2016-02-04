@@ -1,0 +1,69 @@
+
+
+
+------------ |                           |-----------------|                             |---------------|
+             |                           |                 |                             | ELK           |
+KINESIS/     |  ------------------->>>>  |  SPARK          |  ----------------------->>>>| DynamoDB      |
+KAFKA        |                           |                 |                             | S3            |
+------------ |                           |-----------------|                             |---------------| 
+
+
+
+On AWS there are two ways to use a resource :
+1. Get a EC2 resource and manually install haoop/YARN/Kafka/ELK
+2. USE AWS managed services to host YARN/SPARK/HADOOP/KINESES. 
+
+
+Things to keep in mind:
+1.VPC plays a important role in deciding what is accessible to world and what is not . 
+2.ALL instances inside VPC can talk to each other . USER PRIVATE ip and use ping command to verify 
+3.WHILE setting up and EC2 box always opt for linux as there are better community support in terms of documentation.
+4.A Client which may work with EC2 manually hosted service might not work with the managed service. 
+
+REPO:
+Code is divided in three parts 
+* sample code to demonstrate the functionality 
+* Code for Kinesis -> Spark -> ELK (ALL AWS managed service)
+* Code for Kafka(manually installed) ->Spark(AWS managed)->ELK (manually installed)
+* Code for Kafka(manually)->Spark(AWS managed)->ELK(Managed)
+
+* create  ~/.aws/config directory 
+* add credtial file with aws_access_key_id and aws_secret_access_key
+
+Kinesis:
+1. Distributed messaging queue like Kafka . 
+2. Repo has code samples of how to write to Kinesis and read back . 
+3. Use simpleCustomKinesisProducer to write your own . 
+
+Kafka:
+Installation Guide
+http://www.bogotobogo.com/Hadoop/BigData_hadoop_Zookeeper_Kafka.php
+
+
+ELK
+1. ELK can be either setup manually or AWS managed service can be used
+2. In Manual EC2 instance JavaEsSpark client can be used . 
+3. In Managed mode ELK provides a REST endpoint running on port 80 . One needs to use Jest jar to put and get 
+4. curl works perfectly fine with Manual/Managed ELK
+5. https://github.com/andrewpuch/elasticsearch-logstash-kibana-tutorial (Linux)
+6. https://gist.github.com/msolujic/9207419 (AMI)
+
+
+SPARK: 
+1. USE AWS managed service to bring up SPARK on YARN 
+2. There can be Jar issues because of protobuf while running spark jobs . 
+3. Protobuf ./com.google.protobuf-2.4.0.jar and amazon-kinesis-client-1.3.0.jar can only work in tandem 
+4. The jar used in command line are the one which is required in the project . Try to avoid a different jar version.
+
+POM:
+Maintainin the correct version is very important throughout . 
+
+
+spark-submit  --jars httpcore-nio-4.3.2.jar,httpasyncclient-4.0.1.jar,gson-2.2.4.jar,httpcore-4.3.3.jar,httpclient-4.3.6.jar,jest-common-0.1.2.jar,./jest-0.1.2.jar,./com.google.protobuf-2.4.0.jar,elasticsearch-hadoop-2.2.0.jar,amazon-kinesis-client-1.3.0.jar,spark-streaming-kinesis-asl_2.10-1.6.0.jar  --class com.amazonaws.services.kinesis.producer.sample.KenesisSparkElasticSearchStreamingAWS  --master local[4]  --verbose  grabtaxi-aws-streaming-poc-1.0.0.jar  'One' 'https://kinesis.us-west-2.amazonaws.com' 'http://search-grabtaxi-elk-ndl2pvqgqmj3ixmwpsmyvnmray.us-west-2.es.amazonaws.com' 1
+
+
+
+
+
+
+
